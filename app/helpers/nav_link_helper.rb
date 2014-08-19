@@ -32,7 +32,6 @@ module NavLinkHelper
       if wrapper
         html = content_tag(wrapper, html, :class => wrapper_classes)
       end
-
       html.html_safe
     end
 
@@ -64,13 +63,48 @@ module NavLinkHelper
     end
 
     def comparable_path_for(path)
+      use_params = @options[:use_params]
       ignore_params = @options[:ignore_params]
+
+      if use_params
+        apply_use_params_to_path(use_params, path)
+      elsif ignore_params
+        apply_ignore_params_to_path(ignore_params, path)
+      else
+        path
+      end
+    end
+
+    def apply_use_params_to_path(use_params, path)
+      if use_params.is_a? Array
+        uri = URI(path)
+        params = Rack::Utils.parse_query(uri.query).slice(*use_params.map{ |p| p.to_s })
+        new_query = params.to_query
+        uri.query = new_query unless new_query.empty?
+        uri.to_s
+      elsif use_params.is_a? Hash
+        uri = URI(path)
+        use_params = use_params.inject({}) do |options, (key, value)|
+          options[key.to_s] = value.to_s
+          options
+        end
+        params = Rack::Utils.parse_query(uri.query)
+        new_query = use_params.select { |k, v| params[k] == v }.to_query
+        uri.query = new_query unless new_query.empty?
+        uri.to_s
+      else
+        path
+      end
+    end
+
+    def apply_ignore_params_to_path(ignore_params, path)
       if ignore_params == :all
         path.gsub(/\?.*/, '')
       elsif ignore_params.is_a? Array
         uri = URI(path)
         params = Rack::Utils.parse_query(uri.query).except(*ignore_params.map{ |p| p.to_s })
-        uri.query = params.to_query
+        new_query = params.to_query
+        uri.query = new_query.empty? ? nil : new_query
         uri.to_s
       else
         path

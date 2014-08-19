@@ -82,6 +82,25 @@ describe NavLinkHelper do
           subject.new(request, 'Hi', '/projects', controller, {:ignore_params => [:page, :order]}).to_html
             .should have_tag("a.selected[href='/projects']", :text => "Hi")
         end
+
+        it "flags the link as selected if we are using array of params" do
+          request.stub(:fullpath).and_return('/projects?page=2&order=date')
+          subject.new(request, 'Hi', '/projects?page=2', controller, {:use_params => [:page]}).to_html
+            .should have_tag("a.selected[href='/projects?page=2']", :text => "Hi")
+        end
+
+        it "flags the link as selected if we are using hash of params" do
+          request.stub(:fullpath).and_return('/projects?page=2&order=date')
+          subject.new(request, 'Hi', '/projects?page=2', controller, {:use_params => {page: 2}}).to_html
+          .should have_tag("a.selected[href='/projects?page=2']", :text => "Hi")
+        end
+
+        it "ignores :ignore_params when :use_params is specified" do
+          request.stub(:fullpath).and_return('/projects?page=2&order=date')
+          subject.new(request, 'Hi', '/projects?page=2', controller, {:ignore_params => [:some_key], :use_params => {page: 2}})
+            .to_html
+            .should have_tag("a.selected[href='/projects?page=2']", :text => "Hi")
+        end
       end
 
       it "allows the specification of an alternate selected class" do
