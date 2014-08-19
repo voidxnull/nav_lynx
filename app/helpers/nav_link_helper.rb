@@ -46,7 +46,15 @@ module NavLinkHelper
     end
 
     def selected?
-      paths_match? || segments_match?
+      and_condition = @options[:and_condition]
+      or_condition = @options[:or_condition]
+      if and_condition
+        and_condition.call and (paths_match? || segments_match?)
+      elsif or_condition
+        or_condition.call or (paths_match? || segments_match?)
+      else
+        paths_match? || segments_match?
+      end
     end
 
     def paths_match?
