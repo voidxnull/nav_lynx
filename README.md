@@ -27,7 +27,7 @@ Same usage as `link_to`:
 ### Usage with options
 
 ```erb
-  <%= nav_link_to my_path, html_options, nav_lynx_options %>
+  <%= nav_link_to my_path, nav_lynx_options, html_options %>
 ```
 
 ## Install

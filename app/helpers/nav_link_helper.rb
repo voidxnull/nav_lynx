@@ -6,10 +6,10 @@ module NavLinkHelper
   def nav_link_to(*args, &block)
     title = block_given? ? capture(&block) : args.shift
     url_options  = args[0]
-    html_options = args[1] || {}
-    options      = args[2] || {}
+    options      = args[1] || {}
+    html_options = args[2] || {}
 
-    LinkGenerator.new(request, title, url_options, controller,html_options, options).to_html
+    LinkGenerator.new(request, title, url_options, controller, options, html_options).to_html
   end
 
   class LinkGenerator
@@ -18,7 +18,7 @@ module NavLinkHelper
 
     attr_reader :controller
 
-    def initialize(request, title, url_options, controller, html_options = {}, options = {})
+    def initialize(request, title, url_options, controller, options = {}, html_options = {})
       @request      = request
       @title        = title
       @url_options  = url_options

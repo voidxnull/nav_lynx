@@ -27,10 +27,10 @@ describe NavLinkHelper do
     end
 
     it "accepts options and html_options parameters" do
-      NavLinkHelper::LinkGenerator.should_receive(:new).with(:request, "My Title", "/path", controller, :html_options, :options)
+      NavLinkHelper::LinkGenerator.should_receive(:new).with(:request, "My Title", "/path", controller, :options, :html_options)
         .and_return(link_generator)
 
-      helper.nav_link_to("My Title", "/path", :html_options, :options)
+      helper.nav_link_to("My Title", "/path", :options, :html_options)
     end
   end
 
@@ -67,71 +67,71 @@ describe NavLinkHelper do
 
         it "does not flag the link as selected if we are ignoring certain parameters but not all" do
           request.stub(:fullpath).and_return('/projects?page=2&order=date')
-          subject.new(request, 'Hi', '/projects', controller, {}, {:ignore_params => [:order]}).to_html
+          subject.new(request, 'Hi', '/projects', controller, {:ignore_params => [:order]}).to_html
           .should_not have_tag("a.selected[href='/projects']", :text => "Hi")
         end
 
         it "flags the link as selected if we are ignoring all the parameters" do
           request.stub(:fullpath).and_return('/projects?page=2&order=date')
-          subject.new(request, 'Hi', '/projects', controller, {}, {:ignore_params => :all}).to_html
+          subject.new(request, 'Hi', '/projects', controller, {:ignore_params => :all}).to_html
             .should have_tag("a.selected[href='/projects']", :text => "Hi")
         end
 
         it "flags the link as selected if we are ignoring certain parameters" do
           request.stub(:fullpath).and_return('/projects?page=2&order=date')
-          subject.new(request, 'Hi', '/projects', controller, {}, {:ignore_params => [:page, :order]}).to_html
+          subject.new(request, 'Hi', '/projects', controller, {:ignore_params => [:page, :order]}).to_html
             .should have_tag("a.selected[href='/projects']", :text => "Hi")
         end
       end
 
       it "allows the specification of an alternate selected class" do
         request.stub(:fullpath).and_return('/projects')
-        subject.new(request, 'Hi', '/projects', controller, {}, {:selected_class => 'current'}).to_html
+        subject.new(request, 'Hi', '/projects', controller, {:selected_class => 'current'}).to_html
           .should have_tag("a.current[href='/projects']", :text => "Hi")
       end
 
       it "generates a wrapper for the link when specified" do
-        subject.new(request, 'Hi', '/projects', controller, {}, {:wrapper => 'li'}).to_html
+        subject.new(request, 'Hi', '/projects', controller, {:wrapper => 'li'}).to_html
           .should == '<li><a href="/projects">Hi</a></li>'
       end
 
       it "provides a class for the wrapper when specified" do
-        subject.new(request, 'Hi', '/projects', controller, {}, {:wrapper => 'li', :wrapper_class => 'container'}).to_html
+        subject.new(request, 'Hi', '/projects', controller, {:wrapper => 'li', :wrapper_class => 'container'}).to_html
           .should == '<li class="container"><a href="/projects">Hi</a></li>'
       end
 
       it "provides a class for the wrapper when specified along with a selected class if neeeded" do
         request.stub(:fullpath).and_return('/projects')
-        subject.new(request, 'Hi', '/projects', controller, {}, {:wrapper => 'li', :wrapper_class => 'container'}).to_html
+        subject.new(request, 'Hi', '/projects', controller, {:wrapper => 'li', :wrapper_class => 'container'}).to_html
           .should == '<li class="selected container"><a href="/projects">Hi</a></li>'
       end
 
       it "allows specification of the link classes" do
-        subject.new(request, 'Hi', '/projects', controller, {:class => 'one two'}, {}).to_html
+        subject.new(request, 'Hi', '/projects', controller, {}, {:class => 'one two'}).to_html
           .should have_tag("a.one.two[href='/projects']", :text => "Hi")
       end
 
       it "combines custom link classes when the link is selected" do
         request.stub(:fullpath).and_return('/projects')
-        subject.new(request, 'Hi', '/projects', controller, {:class => 'one two'}, {}).to_html
+        subject.new(request, 'Hi', '/projects', controller, {}, {:class => 'one two'}).to_html
           .should have_tag("a.selected.one.two[href='/projects']", :text => "Hi")
       end
 
       it "ignores the ID in the path when provided with a segment" do
         request.stub(:fullpath).and_return('/projects/2')
-        subject.new(request, 'Hi', '/projects', controller, {}, {:url_segment => 1}).to_html
+        subject.new(request, 'Hi', '/projects', controller, {:url_segment => 1}).to_html
           .should have_tag("a.selected[href='/projects']", :text => "Hi")
       end
 
       it "handles deep URL segments" do
         request.stub(:fullpath).and_return('/projects/2/3')
-        subject.new(request, 'Hi', '/projects/2', controller, {}, {:url_segment => 2}).to_html
+        subject.new(request, 'Hi', '/projects/2', controller, {:url_segment => 2}).to_html
           .should have_tag("a.selected[href='/projects/2']", :text => "Hi")
       end
 
       it "knows to not match on the first segment when requested" do
         request.stub(:fullpath).and_return('/projects/2/3')
-        subject.new(request, 'Hi', '/projects/1', controller, {}, {:url_segment => 2}).to_html
+        subject.new(request, 'Hi', '/projects/1', controller, {:url_segment => 2}).to_html
           .should == '<a href="/projects/1">Hi</a>'
       end
 
@@ -142,7 +142,7 @@ describe NavLinkHelper do
         request.stub(:fullpath).and_return('/members/pages/1')
         request.stub(:path).and_return('/members/pages/1')
 
-        subject.new(request, 'Hi', '/members/1', controller, {}, {:controller_segment => 1}).to_html
+        subject.new(request, 'Hi', '/members/1', controller, {:controller_segment => 1}).to_html
           .should have_tag("a.selected[href='/members/1']", :text => "Hi")
       end
 
