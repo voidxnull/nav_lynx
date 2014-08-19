@@ -59,15 +59,29 @@ describe NavLinkHelper do
         subject.new(request, 'Hi', '/projects', controller).to_html.should have_tag("a.current[href='/projects']", :text => "Hi")
       end
 
-      it "does not flag the link as current if there are parameters in the path" do
-        request.stub(:fullpath).and_return('/projects?all=true')
-        subject.new(request, 'Hi', '/projects', controller).to_html.should == '<a href="/projects">Hi</a>'
-      end
+      context "with query parameters" do
+        it "does not flag the link as current" do
+          request.stub(:fullpath).and_return('/projects?page=2')
+          subject.new(request, 'Hi', '/projects', controller).to_html.should == '<a href="/projects">Hi</a>'
+        end
 
-      it "flags the link as selected if there are parameters in the path but we are ignoring parameters" do
-        request.stub(:fullpath).and_return('/projects?all=true')
-        subject.new(request, 'Hi', '/projects', controller, {}, {:ignore_params => true}).to_html
-          .should have_tag("a.selected[href='/projects']", :text => "Hi")
+        it "does not flag the link as selected if we are ignoring certain parameters but not all" do
+          request.stub(:fullpath).and_return('/projects?page=2&order=date')
+          subject.new(request, 'Hi', '/projects', controller, {}, {:ignore_params => [:order]}).to_html
+          .should_not have_tag("a.selected[href='/projects']", :text => "Hi")
+        end
+
+        it "flags the link as selected if we are ignoring all the parameters" do
+          request.stub(:fullpath).and_return('/projects?page=2&order=date')
+          subject.new(request, 'Hi', '/projects', controller, {}, {:ignore_params => :all}).to_html
+            .should have_tag("a.selected[href='/projects']", :text => "Hi")
+        end
+
+        it "flags the link as selected if we are ignoring certain parameters" do
+          request.stub(:fullpath).and_return('/projects?page=2&order=date')
+          subject.new(request, 'Hi', '/projects', controller, {}, {:ignore_params => [:page, :order]}).to_html
+            .should have_tag("a.selected[href='/projects']", :text => "Hi")
+        end
       end
 
       it "allows the specification of an alternate selected class" do

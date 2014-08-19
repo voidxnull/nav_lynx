@@ -1,3 +1,6 @@
+require 'rack/utils'
+require 'active_support/core_ext/hash'
+
 module NavLinkHelper
 
   def nav_link_to(*args, &block)
@@ -61,8 +64,14 @@ module NavLinkHelper
     end
 
     def comparable_path_for(path)
-      if @options[:ignore_params]
+      ignore_params = @options[:ignore_params]
+      if ignore_params == :all
         path.gsub(/\?.*/, '')
+      elsif ignore_params.is_a? Array
+        uri = URI(path)
+        params = Rack::Utils.parse_query(uri.query).except(*ignore_params.map{ |p| p.to_s })
+        uri.query = params.to_query
+        uri.to_s
       else
         path
       end
